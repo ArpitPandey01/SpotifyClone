@@ -90,36 +90,36 @@ async function displayAlbums() {
   let anchors = div.getElementsByTagName("a");
   let cardContainer = document.querySelector(".cardContainer");
   let array = Array.from(anchors);
+
   for (let index = 0; index < array.length; index++) {
     const e = array[index];
-    if (e.href.includes("/songs/")&& !e.href.includes(".htaccess"))) {
+
+    if (e.href.includes("/songs/")) {
       let folder = e.href.split("/").slice(-2)[1];
-      //Get The meta deta of the folder
-      let a = await fetch(`js/songs/${folder}/info.json`);
-      let response = await a.json();
-      cardContainer.innerHTML =
-        cardContainer.innerHTML +
-        ` <div data-folder="${folder}" class="card">
-     <div class="play">
-     <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
-                                <polygon points="59,40 59,160 159,100" fill="black" stroke="#000" stroke-width="1"/>
-                              </svg>
-     </div>
-     <img src="/songs/${folder}/cover.jpg">
-     <h4>${response.title}</h4>
-     <p>${response.Description}</p>
- </div>`;
+
+      // Check if the folder is 'dailyMix'
+      if (folder === 'dailyMix') {
+        // Get the meta data of the 'dailyMix' folder
+        let infoJson = await fetch(`js/songs/${folder}/info.json`);
+        let infoResponse = await infoJson.json();
+
+        // Modify the code to append the dailyMix folder details
+        cardContainer.innerHTML += `
+          <div data-folder="${folder}" class="card">
+            <div class="play">
+              <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+                <polygon points="59,40 59,160 159,100" fill="black" stroke="#000" stroke-width="1"/>
+              </svg>
+            </div>
+            <img src="/songs/${folder}/cover.jpg">
+            <h4>${infoResponse.title}</h4>
+            <p>${infoResponse.Description}</p>
+          </div>`;
+      }
     }
   }
-  //Adding Event Listener on Cards
-
-  Array.from(document.getElementsByClassName("card")).forEach((e) => {
-    e.addEventListener("click", async (item) => {
-      songs = await getSongs(`songs/${item.currentTarget.dataset.folder}`);
-      playMusic(songs[0]);
-    });
-  });
 }
+
 
 
 //Main function
