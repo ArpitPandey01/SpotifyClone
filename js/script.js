@@ -83,7 +83,7 @@ const playMusic = (track, pause = false) => {
 };
 
 async function displayAlbums() {
-  let a = await fetch(`SpotifyClone/songs/`);
+  let a = await fetch(`/songs/`);
   let response = await a.text();
   let div = document.createElement("div");
   div.innerHTML = response;
@@ -92,7 +92,7 @@ async function displayAlbums() {
   let array = Array.from(anchors);
   for (let index = 0; index < array.length; index++) {
     const e = array[index];
-    if (e.href.includes("SpotifyClone/songs/") && !e.href.includes(".htaccess")) {
+    if (e.href.includes("/songs/") && !e.href.includes(".htaccess")) {
       let folder = e.href.split("/").slice(-2)[1];
       //Get The meta deta of the folder
       let a = await fetch(`/songs/${folder}/info.json`);
@@ -111,6 +111,7 @@ async function displayAlbums() {
  </div>`;
     }
   }
+  
   //Adding Event Listener on Cards
 
   Array.from(document.getElementsByClassName("card")).forEach((e) => {
