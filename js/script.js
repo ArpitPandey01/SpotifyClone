@@ -92,10 +92,13 @@ async function displayAlbums() {
   let array = Array.from(anchors);
   for (let index = 0; index < array.length; index++) {
     const e = array[index];
+    console.log(e.href)
     if (e.href.includes("/songs/") && !e.href.includes(".htaccess")) {
-      let folder = e.href.split("/").slice(-2)[0];
+      let folder = e.href.split("/").slice(-2)[1];
+      console.log(folder)
       //Get The meta deta of the folder
       let a = await fetch(`/songs/${folder}/info.json`);
+      console.log("a = ",a)
       let response = await a.json();
       cardContainer.innerHTML =
         cardContainer.innerHTML +
