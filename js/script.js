@@ -3,6 +3,7 @@ let currSong = new Audio();
 let songUl;
 let songs;
 let currFolder;
+let folder;
 
 let previous = document.getElementById("prev");
 let play = document.getElementById("play");
@@ -94,7 +95,7 @@ async function displayAlbums() {
     const e = array[index];
     console.log(e.href)
     if (e.href.includes("/songs/") && !e.href.includes(".htaccess")) {
-      let folder = e.href.split("/").slice(-2)[1];
+      folder = e.href.split("/").slice(-2)[1];
       console.log(folder)
       //Get The meta deta of the folder
       let a = await fetch(`/songs/${folder}/info.json`);
