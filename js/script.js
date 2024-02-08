@@ -92,7 +92,7 @@ async function displayAlbums() {
   let array = Array.from(anchors);
   for (let index = 0; index < array.length; index++) {
     const e = array[index];
-    if (e.href.includes("/songs/") && !e.href.includes(".htaccess")) {
+    if (e.href.includes("/songs/"){
       let folder = e.href.split("https://arpitpandey01.github.io/SpotifyClone/").slice(-2)[0];
       //Get The meta deta of the folder
       let a = await fetch(`/songs/${folder}/info.json`);
