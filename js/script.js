@@ -83,6 +83,7 @@ const playMusic = (track, pause = false) => {
 };
 
 async function displayAlbums() {
+  async function displayAlbums() {
   let a = await fetch(`https://arpitpandey01.github.io/SpotifyClone/songs/`);
   let response = await a.text();
   let div = document.createElement("div");
@@ -92,8 +93,11 @@ async function displayAlbums() {
   let array = Array.from(anchors);
   for (let index = 0; index < array.length; index++) {
     const e = array[index];
-    if (e.href.includes("/songs/"){
-      let folder = e.href.split("https://arpitpandey01.github.io/SpotifyClone/").slice(-2)[0];
+    if (e.href.includes("/songs/")) {
+      let url = new URL(e.href);
+      let pathSegments = url.pathname.split('/').filter(segment => segment !== "");
+      let folder = pathSegments[pathSegments.length - 1];
+
       //Get The meta deta of the folder
       let a = await fetch(`/songs/${folder}/info.json`);
       let response = await a.json();
