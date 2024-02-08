@@ -1,6 +1,7 @@
-// Global Variables
+//Some Global Variables
 let currSong = new Audio();
-let songs = [];
+let songUl;
+let songs;
 let currFolder;
 
 let previous = document.getElementById("prev");
@@ -21,80 +22,117 @@ function secondsToMinutesSeconds(seconds) {
   return `${formattedMinutes}:${formattedSeconds}`;
 }
 
-// Function to extract folder name from URL
-function getFolderName(url) {
-  const parts = url.split('/');
-  return parts[parts.length - 2];
-}
-
-// Function to get songs based on folder
 async function getSongs(folder) {
   currFolder = folder;
-  const response = await fetch(`/${folder}/`);
-  const html = await response.text();
-  const div = document.createElement("div");
-  div.innerHTML = html;
+  let a = await fetch(`/${folder}/`);
+  let response = await a.text();
+  let div = document.createElement("div");
+  div.innerHTML = response;
+  let as = div.getElementsByTagName("a");
+  songs = [];
+  for (let index = 0; index < as.length; index++) {
+    const element = as[index];
+    if (element.href.endsWith(".mp3")) {
+      songs.push(element.href.split(`/${folder}/`)[1]);
+    }
+  }
 
-  // Extract songs from anchor tags
-  const as = div.querySelectorAll('a[href$=".mp3"]');
-  songs = Array.from(as).map(element => element.href.split(`/${folder}/`)[1]);
+  // Show all the songs in the playlist
 
-  // Display songs in the playlist
-  const songUL = document.querySelector(".songList").querySelector("ul");
-  songUL.innerHTML = songs.map(song =>
-    `<li> <!-- Your li HTML here --> </li>`
-  ).join('');
+  let songUL = document
+    .querySelector(".songList")
+    .getElementsByTagName("ul")[0];
+  songUL.innerHTML = "";
+  for (const song of songs) {
+    songUL.innerHTML =
+      songUL.innerHTML +
+      `<li><img class="invert" width="34" src="img/music.svg" alt="musicIcon">
+                          <div class="info">
+                              <div> ${song.replaceAll("%20", " ")}</div>
+                              <div>Arpit</div>
+                          </div>
+                          <div class="playnow">
+                              <span>Play Now</span>
+                              <img class="invert" src="img/play.svg" alt="playIcon">
+                          </div> </li>`;
+  }
 
-  // Attach event listener to each song
-  songUL.querySelectorAll("li").forEach((li, index) => {
-    li.addEventListener("click", () => {
-      playMusic(songs[index]);
+  // Attach an event listener to each song
+
+  Array.from(
+    document.querySelector(".songList").getElementsByTagName("li")
+  ).forEach((e) => {
+    e.addEventListener("click", (element) => {
+      playMusic(e.querySelector(".info").firstElementChild.innerHTML.trim());
     });
   });
 
   return songs;
 }
 
-// Function to display albums
+// Playing Music - Function
+
+const playMusic = (track, pause = false) => {
+  currSong.src = `/${currFolder}/` + track;
+  if (!pause) {
+    currSong.play();
+    play.src = "img/pause.svg";
+  }
+  document.querySelector(".songinfo").innerHTML = decodeURI(track);
+  document.querySelector(".songtime").innerHTML = "00:00 / 00:00";
+};
+
 async function displayAlbums() {
-  const response = await fetch(`/songs/`);
-  const html = await response.text();
-  const div = document.createElement("div");
-  div.innerHTML = html;
+  let a = await fetch(`https://arpitpandey01.github.io/SpotifyClone/songs/`);
+  let response = await a.text();
+  let div = document.createElement("div");
+  div.innerHTML = response;
+  let anchors = div.getElementsByTagName("a");
+  let cardContainer = document.querySelector(".cardContainer");
+  let array = Array.from(anchors);
+  for (let index = 0; index < array.length; index++) {
+    const e = array[index];
+    if (e.href.includes("/songs/") && !e.href.includes(".htaccess")) {
+      let folder = e.href.split("https://arpitpandey01.github.io/SpotifyClone/").slice(-2)[1];
+      //Get The meta deta of the folder
+      let a = await fetch(`/songs/${folder}/info.json`);
+      let response = await a.json();
+      cardContainer.innerHTML =
+        cardContainer.innerHTML +
+        ` <div data-folder="${folder}" class="card">
+     <div class="play">
+     <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+                                <polygon points="59,40 59,160 159,100" fill="black" stroke="#000" stroke-width="1"/>
+                              </svg>
+     </div>
+     <img src="/songs/${folder}/cover.jpg">
+     <h4>${response.title}</h4>
+     <p>${response.Description}</p>
+ </div>`;
+    }
+  }
+  //Adding Event Listener on Cards
 
-  // Extract folders from anchor tags
-  const folders = Array.from(div.querySelectorAll('a[href*="/songs/"]'))
-    .filter(element => !element.href.includes(".htaccess"))
-    .map(element => getFolderName(element.href));
-
-  const cardContainer = document.querySelector(".cardContainer");
-
-  // Display cards for each folder
-  for (const folder of folders) {
-    const folderInfo = await fetch(`/songs/${folder}/info.json`);
-    const info = await folderInfo.json();
-
-    cardContainer.innerHTML += `
-      <div data-folder="${folder}" class="card">
-        <!-- Your card HTML here -->
-      </div>`;
-
-    // Add event listener to each card
-    cardContainer.querySelector(`[data-folder="${folder}"]`).addEventListener("click", async () => {
-      songs = await getSongs(`songs/${folder}`);
+  Array.from(document.getElementsByClassName("card")).forEach((e) => {
+    e.addEventListener("click", async (item) => {
+      songs = await getSongs(`songs/${item.currentTarget.dataset.folder}`);
       playMusic(songs[0]);
     });
-  }
+  });
 }
 
-// Main function
+
+//Main function
+
 async function main() {
-  // Get songs for initial folder
   await getSongs("songs/dailyMix");
   playMusic(songs[0], true);
 
-  // Display albums
+  // call Display albums
+
   displayAlbums();
+
+  // Add eventListener On Play Button
 
   play.addEventListener("click", () => {
     if (currSong.paused) {
@@ -186,4 +224,5 @@ document.querySelector(".volume > img").addEventListener('click', e=>{
 }
 
 // Calling Main Function
+
 main();
